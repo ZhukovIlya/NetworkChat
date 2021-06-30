@@ -1,9 +1,10 @@
 package ru.netology;
 
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Properties;
+import java.util.Scanner;
 
 public class Server {
     private ArrayList<ConnectedUser> connectedUsers = new ArrayList<>();
@@ -13,7 +14,7 @@ public class Server {
     }
 
     public Server() {
-        final int PORT = getSetting("port");
+        int PORT = getSetting();
 
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -40,23 +41,21 @@ public class Server {
         }
     }
 
-
-    private static int getSetting(String setting) {
-        String rootPath;
+    static int getSetting() {
+        String s = "";
+        Scanner in = null;
         try {
-            rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-        } catch (Exception e) {
-            rootPath = "";
-        }
-        String settingsPath = rootPath + "settings.properties";
-
-        Properties settingProps = new Properties();
-        try {
-            settingProps.load(new FileInputStream(settingsPath));
-        } catch (IOException e) {
+            in = new Scanner(new File("src/main/resources/settings.txt"));
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        return Integer.parseInt(settingProps.getProperty(setting));
+        while(in.hasNext()) {
+            s += in.nextLine();
+        }
+        in.close();
+
+        s = s.substring(5);
+        return Integer.parseInt(s);
     }
 }
 
