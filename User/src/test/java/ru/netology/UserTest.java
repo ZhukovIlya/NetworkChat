@@ -9,13 +9,16 @@ class UserTest {
 
     @Test
     void getSettingUserTestPORT() {
-        String s = getSettingUser("PORT");
-        System.out.println((s));
+        int expected = 23433;
+        int actual = Integer.parseInt(getSettingUser("PORT"));
+
+        assertEquals(expected, actual);
     }
     @Test
     void getSettingUserTestIP() {
-        String s = getSettingUser("IP");
-        System.out.println((s));
+        String expected = "localhost";
+        String actual = getSettingUser("IP");
+        assertEquals(expected, actual);
     }
 
 }
