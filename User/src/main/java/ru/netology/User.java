@@ -1,42 +1,48 @@
 package ru.netology;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+
+import java.io.*;
 import java.net.Socket;
-import java.util.Properties;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class User {
-    public final int PORT = Integer.parseInt(getSetting("port"));
+    public final int PORT = Integer.parseInt(getSettingUser("PORT"));
 
-    private static final String IP = getSetting("localhost");
+    private static final String IP = getSettingUser("IP");
     Scanner scanner = new Scanner(System.in);
+
 
     public static void main(String[] args) {
 
         try {
             User user = new User();
         } catch (IOException e) {
-            //TODO залогировать ошибку
+            log("ошибка при создании User");
             e.printStackTrace();
         }
     }
 
     public User() throws IOException {
+        String name;
+        System.out.println("Введите имя: ");
+        name = scanner.nextLine();
 
         Socket socket = new Socket(IP, PORT);
+        new Thread(new InMessageRunnable(this, socket)).start();
+        System.out.println("Для выхода из чата введите /exit");
         try (PrintWriter out = new PrintWriter((new OutputStreamWriter(socket.getOutputStream())), true)) {
-            String msg;
+            String line;
             while (true) {
-                msg = scanner.nextLine();
-                if ("/exit".equals(msg)) {
-                    out.println(msg);
+                line = scanner.nextLine();
+                if ("/exit".equals(line)) {
+                    out.printf("Польхователь %s вышел", name);
                     break;
+                } else {
+                    out.println(name + " : " + line);
+                    log(name + " : " + line);
                 }
-                out.printf(msg);
-                //TODO добавить логировние
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -45,23 +51,44 @@ public class User {
             socket.close();
         }
     }
-    private static String getSetting(String setting) {
-        String rootPath;
-        try {
-            rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-        } catch (Exception e) {
-            rootPath = "";
-        }
-        String settingsPath = rootPath + "settings.properties";
 
-        Properties settingProps = new Properties();
-        try {
-            settingProps.load(new FileInputStream(settingsPath));
+    public void inMessage(String msg) {
+        System.out.println(msg);
+        log(msg);
+    }
+
+    private static String getSetting(String setting) {
+        return "0";
+    }
+
+    private static void log(String msg) {
+        String dateNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
+
+        File log = new File("userFile.log");
+        try (FileWriter fw = new FileWriter(log, true);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+            bw.write(String.format("[%s] %s\n", dateNow, msg));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return settingProps.getProperty(setting);
     }
+
+    public static String getSettingUser(String st) {
+        String s = "";
+        Scanner in;
+        in = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream("settingsUser.txt"));
+        while (in.hasNext()) {
+            s += in.nextLine();
+        }
+        in.close();
+        if ("PORT".equals(st)) {
+            s = s.substring(s.lastIndexOf((st + "=")) + 5, 10);
+        } else {
+            s = s.substring(s.lastIndexOf((st + "=")) + 3, 22);
+        }
+        return s;
+    }
+
 }
 
 

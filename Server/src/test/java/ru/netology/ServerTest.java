@@ -9,13 +9,11 @@ class ServerTest {
 
     @Test
     void main() {
-        int s;
-        s = getSetting();
-        System.out.println(s);
+        int expected = 23432;
+        int actual = getSetting();
+
+        assertEquals(expected, actual);
 
     }
 
-    @Test
-    void sendToAll() {
-    }
 }
