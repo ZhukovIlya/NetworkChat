@@ -1,2 +1,0 @@
-PORT=23433
-IP=localhost
