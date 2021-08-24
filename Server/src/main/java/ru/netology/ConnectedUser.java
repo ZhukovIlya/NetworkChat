@@ -15,6 +15,7 @@ public class ConnectedUser implements Runnable {
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
+            server.log("не удалось создать out/in");
             e.printStackTrace();
         }
     }
@@ -37,6 +38,7 @@ public class ConnectedUser implements Runnable {
                 }
             }
         } catch (IOException e) {
+            server.log("не удалось подключится к чату");
             e.printStackTrace();
         }finally {
             server.removeClient(this);

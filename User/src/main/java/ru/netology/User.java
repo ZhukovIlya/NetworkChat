@@ -8,21 +8,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class User {
+    private static final String SETTINGS_USER = "settingsUser.txt";
+    private static final String USER_FILE = "userFile.log";
     public final int PORT = Integer.parseInt(getSettingUser("PORT"));
 
     private static final String IP = getSettingUser("IP");
     Scanner scanner = new Scanner(System.in);
 
-
-    public static void main(String[] args) {
-
-        try {
-            User user = new User();
-        } catch (IOException e) {
-            log("ошибка при создании User");
-            e.printStackTrace();
-        }
-    }
 
     public User() throws IOException {
         String name;
@@ -52,19 +44,16 @@ public class User {
         }
     }
 
-    public void inMessage(String msg) {
+    public static void inMessage(String msg) {
         System.out.println(msg);
         log(msg);
     }
 
-    private static String getSetting(String setting) {
-        return "0";
-    }
 
-    private static void log(String msg) {
+    public static void log(String msg) {
         String dateNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
 
-        File log = new File("userFile.log");
+        File log = new File(USER_FILE);
         try (FileWriter fw = new FileWriter(log, true);
              BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(String.format("[%s] %s\n", dateNow, msg));
@@ -76,7 +65,7 @@ public class User {
     public static String getSettingUser(String st) {
         String s = "";
         Scanner in;
-        in = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream("settingsUser.txt"));
+        in = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream(SETTINGS_USER));
         while (in.hasNext()) {
             s += in.nextLine();
         }

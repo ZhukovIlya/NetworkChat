@@ -7,15 +7,14 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Server {
-    private ArrayList<ConnectedUser> connectedUsers = new ArrayList<>();
-    int PORT = getSetting();
-
-    public static void main(String[] args) {
-        Server server = new Server();
-    }
+    private static final String SETTINGS = "settings.txt";
+    private static final String SERVER_FILE = "serverFile.log";
+    private volatile List<ConnectedUser> connectedUsers = new ArrayList<>();
+    int PORT = getSetting("PORT");
 
     public Server() {
         Socket userSocket = null;
@@ -44,15 +43,15 @@ public class Server {
         }
     }
 
-    static int getSetting() {
+    public static int getSetting(String st) {
         String s = "";
         Scanner in;
-        in = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream("settings.txt"));
+        in = new Scanner(Thread.currentThread().getContextClassLoader().getResourceAsStream(SETTINGS));
         while (in.hasNext()) {
             s += in.nextLine();
         }
         in.close();
-        s = s.substring(5);
+        s = s.substring(st.length() + 1);
         return Integer.parseInt(s);
     }
 
@@ -60,11 +59,11 @@ public class Server {
         connectedUsers.remove(client);
     }
 
-    void log(String msg) {
+    public static void log(String msg) {
         String dateNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"));
         System.out.printf("[%s] %s\n", dateNow, msg);
 
-        File log = new File("serverFile.log");
+        File log = new File(SERVER_FILE);
         try (FileWriter fw = new FileWriter(log, true);
              BufferedWriter bw = new BufferedWriter(fw)) {
             bw.write(String.format("[%s] %s\n", dateNow, msg));
